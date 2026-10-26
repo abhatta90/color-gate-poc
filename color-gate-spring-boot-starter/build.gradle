@@ -1,0 +1,48 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+description = 'Runs background work only in the active blue/green color'
+
+java {
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            // Write the resolved Spring Boot versions into the published POM and Gradle metadata.
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+    // To publish to your company repository (Nexus/Artifactory), add it here, e.g.:
+    // repositories {
+    //     maven {
+    //         url = 'https://nexus.example.com/repository/maven-releases/'
+    //         credentials { username = findProperty('repoUser'); password = findProperty('repoPassword') }
+    //     }
+    // }
+}
+
+dependencies {
+    api 'org.springframework.boot:spring-boot-starter'
+    api 'org.springframework.boot:spring-boot-starter-jdbc'
+    // Intercepts @Scheduled / @ColorGated methods
+    api 'org.springframework.boot:spring-boot-starter-aop'
+
+    // Only used when the service has actuator: exposes /actuator/colorgate
+    compileOnly 'org.springframework.boot:spring-boot-actuator-autoconfigure'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}

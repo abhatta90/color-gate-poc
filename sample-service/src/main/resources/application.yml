@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: sample-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/colorgate
+    username: colorgate
+    password: ""          # Homebrew Postgres trusts local connections
+  sql:
+    init:
+      mode: always        # creates the tables on startup (CREATE TABLE IF NOT EXISTS)
+      schema-locations: classpath:colorgate/schema.sql, classpath:schema.sql
+
+server:
+  port: 8080              # the IntelliJ run configs use 8081 for BLUE and 8082 for GREEN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, colorgate
+
+colorgate:
+  # This pod's color comes from the APP_COLOR env var (per namespace in Helm; set in the IntelliJ run configs here).
+  poll-interval: 1s
