@@ -53,6 +53,10 @@ Every job records which color started it (`engine_job.executed_by_color`). On ac
 Prerequisites: Java 21 and Postgres running locally (`brew services start postgresql@17`) with the
 `colorgate` user and database.
 
+The database connection can be changed with the env vars `DB_URL`, `DB_USER` and `DB_PASSWORD` (defaults:
+`jdbc:postgresql://localhost:5432/colorgate`, `colorgate`, empty). Never commit a real password; see
+[docs/color-gate-poc.md](docs/color-gate-poc.md), section 5.
+
 ### IntelliJ
 
 File → Open → select the `color-gate-poc` folder. IntelliJ imports it as a Gradle project, and the run

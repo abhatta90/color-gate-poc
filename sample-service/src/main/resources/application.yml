@@ -2,9 +2,10 @@ spring:
   application:
     name: sample-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/colorgate
-    username: colorgate
-    password: ""          # Homebrew Postgres trusts local connections
+    # Override with env vars; never put a real password in this file.
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/colorgate}
+    username: ${DB_USER:colorgate}
+    password: ${DB_PASSWORD:}   # default empty: Homebrew Postgres trusts local connections
   sql:
     init:
       mode: always        # creates the tables on startup (CREATE TABLE IF NOT EXISTS)

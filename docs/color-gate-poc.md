@@ -173,6 +173,25 @@ psql -U colorgate -d colorgate -c "select 1"
 
 Homebrew Postgres trusts local connections, so there is no password. Java 21 must be installed.
 
+### Using a different database (e.g. Docker with a password)
+
+The connection comes from environment variables; the defaults match the local Homebrew setup above.
+
+| Variable | Default |
+|---|---|
+| `DB_URL` | `jdbc:postgresql://localhost:5432/colorgate` |
+| `DB_USER` | `colorgate` |
+| `DB_PASSWORD` | *(empty)* |
+
+Example with Docker:
+```bash
+docker run -d --name colorgate-pg -p 5432:5432 -e POSTGRES_USER=colorgate -e POSTGRES_DB=colorgate -e POSTGRES_PASSWORD=<choose-one> postgres:17
+```
+Then set `DB_PASSWORD=<choose-one>` next to `APP_COLOR` in both IntelliJ run configurations (Run → Edit
+Configurations → Environment variables), or export it in the terminal. For the scripts, `psql` needs
+`export PGHOST=localhost PGPASSWORD=<choose-one>`. **Never put a real password in `application.yml`**: the
+repository is public.
+
 ## 6. Build and test
 
 ```bash
