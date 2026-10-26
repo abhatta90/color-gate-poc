@@ -7,7 +7,7 @@
 # Usage: scripts/switch.sh GREEN
 set -euo pipefail
 cd "$(dirname "$0")/.."
-export PGOPTIONS='-c client_min_messages=warning'
+source scripts/db.sh
 
 color=$(echo "${1:-}" | tr '[:lower:]' '[:upper:]')
 if [[ "$color" != "BLUE" && "$color" != "GREEN" ]]; then
@@ -16,13 +16,13 @@ if [[ "$color" != "BLUE" && "$color" != "GREEN" ]]; then
 fi
 
 # Creates the table if no app has started yet.
-psql -U colorgate -d colorgate -q -v ON_ERROR_STOP=1 -f color-gate-spring-boot-starter/src/main/resources/colorgate/schema.sql
+psql_cmd -q -v ON_ERROR_STOP=1 < color-gate-spring-boot-starter/src/main/resources/colorgate/schema.sql
 
-psql -U colorgate -d colorgate -q -v ON_ERROR_STOP=1 -v color="$color" <<'SQL'
+psql_cmd -q -v ON_ERROR_STOP=1 -v color="$color" <<'SQL'
 INSERT INTO color_gate (service_name, active_color, switched_at, switched_by)
 VALUES ('sample-service', :'color', now(), 'scripts/switch.sh')
 ON CONFLICT (service_name) DO UPDATE
    SET active_color = EXCLUDED.active_color, switched_at = now(), switched_by = EXCLUDED.switched_by;
 SQL
 
-psql -U colorgate -d colorgate -P pager=off -c "SELECT service_name, active_color, switched_at FROM color_gate"
+psql_cmd -P pager=off -c "SELECT service_name, active_color, switched_at FROM color_gate"

@@ -57,6 +57,10 @@ The database connection can be changed with the env vars `DB_URL`, `DB_USER` and
 `jdbc:postgresql://localhost:5432/colorgate`, `colorgate`, empty). Never commit a real password; see
 [docs/color-gate-poc.md](docs/color-gate-poc.md), section 5.
 
+The scripts connect to `localhost:5432` over TCP, use `DB_PASSWORD` if set, and fall back to running `psql`
+inside the Docker container `colorgate-pg` when the `psql` client is not installed.
+`scripts/sql.sh "<sql>"` runs any query the same way.
+
 ### IntelliJ
 
 File → Open → select the `color-gate-poc` folder. IntelliJ imports it as a Gradle project, and the run

@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Shows the active color, the jobs, recent background work, and checks for duplicates and missed cron runs.
 set -euo pipefail
+source "$(dirname "$0")/db.sh"
 
 q() {
   echo
   echo "== $1"
-  psql -U colorgate -d colorgate -P pager=off -c "$2"
+  psql_cmd -P pager=off -c "$2"
 }
 
 q "color_gate" \

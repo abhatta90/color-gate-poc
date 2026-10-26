@@ -188,9 +188,22 @@ Example with Docker:
 docker run -d --name colorgate-pg -p 5432:5432 -e POSTGRES_USER=colorgate -e POSTGRES_DB=colorgate -e POSTGRES_PASSWORD=<choose-one> postgres:17
 ```
 Then set `DB_PASSWORD=<choose-one>` next to `APP_COLOR` in both IntelliJ run configurations (Run → Edit
-Configurations → Environment variables), or export it in the terminal. For the scripts, `psql` needs
-`export PGHOST=localhost PGPASSWORD=<choose-one>`. **Never put a real password in `application.yml`**: the
+Configurations → Environment variables). **Never put a real password in `application.yml`**: the
 repository is public.
+
+### How the scripts connect
+
+All scripts (`switch.sh`, `status.sh`, `reset.sh`, `sql.sh`) share `scripts/db.sh`:
+
+- They connect over TCP to `localhost:5432` as `colorgate` to database `colorgate`. This works for Homebrew and
+  Docker alike.
+- For a password, export the same variable the app uses in the terminal: `export DB_PASSWORD=<choose-one>`.
+- The standard `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD` and `PGDATABASE` variables override the defaults.
+- If the `psql` client is not installed but Docker is, they run `psql` inside the container `colorgate-pg`
+  (another name: `export PG_CONTAINER=<name>`). Or install just the client:
+  `brew install libpq && brew link --force libpq`.
+
+For ad-hoc queries use `scripts/sql.sh "<sql>"`, which follows the same rules.
 
 ## 6. Build and test
 
@@ -217,10 +230,10 @@ APP_COLOR=GREEN java -jar sample-service/build/libs/sample-service-0.0.1-SNAPSHO
 Useful queries (run any time):
 
 ```bash
-psql -U colorgate -d colorgate -c "SELECT id, name, status, attempts, executed_by_color AS color FROM engine_job ORDER BY id"
+scripts/sql.sh "SELECT id, name, status, attempts, executed_by_color AS color FROM engine_job ORDER BY id"
 ```
 ```bash
-psql -U colorgate -d colorgate -c "SELECT executed_by_color AS color, status, string_agg(id::text, ',' ORDER BY id) AS job_ids FROM engine_job GROUP BY 1,2 ORDER BY 1,2"
+scripts/sql.sh "SELECT executed_by_color AS color, status, string_agg(id::text, ',' ORDER BY id) AS job_ids FROM engine_job GROUP BY 1,2 ORDER BY 1,2"
 ```
 ```bash
 scripts/status.sh
@@ -290,7 +303,9 @@ check in `status.sh` shows jobs finished twice.
   startup; running apps then fail with `relation "engine_job" does not exist` until restarted.
 - "Port 8081 already in use": an old run is still going (`lsof -ti tcp:8081` shows the PID).
 - "Color gate: this pod's color is not set": the app was started without `APP_COLOR`. Use the BLUE/GREEN run configs.
-- IntelliJ Community has no database browser; use `psql` or `scripts/status.sh`.
+- IntelliJ Community has no database browser; use `scripts/sql.sh "<sql>"` or `scripts/status.sh`.
+- A script fails on `psql`: see "How the scripts connect" in section 5 (password: `export DB_PASSWORD=...`;
+  no `psql` client: Docker container `colorgate-pg` or `brew install libpq`).
 - If the project was imported in IntelliJ as Maven before: close it, delete `.idea`, open the folder again.
 
 ## 9. Possible next steps
