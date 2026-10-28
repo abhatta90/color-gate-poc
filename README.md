@@ -17,6 +17,8 @@ Build: Gradle (Groovy DSL) with the wrapper, so no Gradle install is needed.
 - [docs/color-gate-poc.md](docs/color-gate-poc.md): the problem, decisions, what was built, and how to verify it.
 - [docs/color-gate-integration.md](docs/color-gate-integration.md): how to add the library to an existing service
   and its tables.
+- [docs/active-color-source-options.md](docs/active-color-source-options.md): for architects, mounted ConfigMap
+  vs Kubernetes API as the source of the active color (proposal to replace the DB table).
 
 ## How it works
 
